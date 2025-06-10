@@ -1,4 +1,5 @@
 from fastapi import FastAPI # type: ignore
+from fastapi.middleware.cors import CORSMiddleware
 from routers import convert
 
 app = FastAPI(
@@ -19,6 +20,15 @@ Converta arquivos entre os seguintes formatos:
     docs_url="/docs",
     redoc_url="/redoc"
 )
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Libera acesso de qualquer site. Só para desenvolvimento!
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 
 app.include_router(convert.router)
 

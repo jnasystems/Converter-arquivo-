@@ -10,11 +10,14 @@ router = APIRouter(prefix="/convert", tags=["Conversão"])
 
 
 def save_uploaded_file(file: UploadFile, extension: str) -> str:
+    import os
+    os.makedirs('temp', exist_ok=True)  # <- Garante que a pasta existe!
     file_id = str(uuid.uuid4())
     file_path = f"temp/{file_id}.{extension}"
     with open(file_path, "wb") as f:
         f.write(file.file.read())
     return file_path
+
 
 
 @router.post("/jpg-to-pdf")

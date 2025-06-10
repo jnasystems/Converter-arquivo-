@@ -10,6 +10,15 @@ const conversionOptions = [
   { label: "DOCX → PDF", value: "docx-to-pdf" },
 ];
 
+// Mapeia o tipo de conversão para a extensão do arquivo convertido
+const extensionMap = {
+  "jpg-to-pdf": "pdf",
+  "jpeg-to-png": "png",
+  "png-to-jpg": "jpg",
+  "pdf-to-docx": "docx",
+  "docx-to-pdf": "pdf",
+};
+
 const ConversionForm = () => {
   const [file, setFile] = useState(null);
   const [convertedFileUrl, setConvertedFileUrl] = useState(null);
@@ -23,6 +32,8 @@ const ConversionForm = () => {
 
     setLoading(true);
     setSuccess(false);
+    setConvertedFileUrl(null);
+
     const formData = new FormData();
     formData.append("file", file);
 
@@ -36,7 +47,16 @@ const ConversionForm = () => {
       setConvertedFileUrl(url);
       setSuccess(true);
     } catch (err) {
-      alert("Erro ao converter o arquivo.");
+      if (err.response) {
+        // Erro do backend, tenta extrair mensagem
+        const reader = new FileReader();
+        reader.onload = function() {
+          alert("Erro do backend: " + reader.result);
+        };
+        reader.readAsText(err.response.data);
+      } else {
+        alert("Erro na requisição: " + err.message);
+      }
     } finally {
       setLoading(false);
     }
@@ -100,7 +120,7 @@ const ConversionForm = () => {
         {convertedFileUrl && (
           <a
             href={convertedFileUrl}
-            download={`arquivo_convertido`}
+            download={`arquivo_convertido.${extensionMap[conversionType] || "bin"}`}
             className="flex items-center justify-center gap-2 mt-4 text-indigo-600 hover:underline font-medium"
           >
             <Download size={20} />
